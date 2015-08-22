@@ -1,12 +1,112 @@
-#define sensor analog(4)
+#define sensorPort 4
+#define readSensor analog(sensorPort)
 #define probes 5
+#define MOTOR_LEFT 0
+#define MOTOR_RIGHT 1
 
-int sensorData[probes];
+void array_fillWithZeros(int array[])
+{
+    int i = 0;
+    int arrMaxIdx = _array_size(array) - 1;
+    
+    for(i = 0; i <= arrMaxIdx; i = i + 1)
+      {
+        array[i]=0;
+    }
+}
+
+int array_isDescending(int array[])
+{
+    int i = 0;
+    int comparisonChain = 0;
+    int arrMaxIdx = _array_size(array) - 1;
+    
+    for(i = 0; i < arrMaxIdx; i = i + 1)
+      {
+        if( array[i] > array[i + 1] )
+          {
+            comparisonChain = comparisonChain + 1;
+        }
+    }
+    
+    if( comparisonChain == arrMaxIdx ) 
+      return 1;
+    else
+      return 0;
+}
+
+
+void array_pop(int array[], int value)
+{
+    int arrMaxIdx = _array_size(array) - 1;
+    int i = 0;
+    
+    for(i = arrMaxIdx; i >= 1; i = i - 1)
+      {
+        array[i] = array[i-1];
+    }
+    array[0] = value;
+}
+
+void printarr(int array[])
+{
+    int arrSize = _array_size(array);
+    int i = 0;
+    
+    for(i = 0; i < arrSize; i = i + 1)
+      {
+        printf("%d,", array[i]);
+    }  
+}
 
 void main()
-{
-	while(1)
-	{
-		printf(Pres
-		start_press()
+{   
+    float pitch;
+    int sensorData[probes];
+    
+    array_fillWithZeros(sensorData);
+    
+    printf("Press start     button to begin\n");
+    start_press();
+    
+    while(!stop_button())
+      {
+        motor(MOTOR_LEFT,75);
+        motor(MOTOR_RIGHT,75);
+        
+        array_pop(sensorData,analog(4));
+        
+        printarr(sensorData);
+        
+        printf("\n");
+        
+        msleep(25L);
+        
+        if( array_isDescending(sensorData) )
+          {
+            printf("Wall is near!\n");
+            beeper_on();
+            
+            off(MOTOR_LEFT);
+            off(MOTOR_RIGHT);
+            
+            for(pitch = 6500.; pitch > 100.; pitch = pitch - 50.)
+              set_beeper_pitch(pitch);
+            
+            for(pitch = 100.; pitch < 6500.; pitch = pitch + 50.)
+              set_beeper_pitch(pitch);
+            
+            start_press();
+            
+        }
+    }
+    
+    off(MOTOR_LEFT);
+    off(MOTOR_RIGHT);
+    
+}
+
+
+
+
 
