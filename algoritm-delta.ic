@@ -1,15 +1,113 @@
+
+
+
+
+#define MOTOR_LEFT 0;
+#define MOTOR_RIGHT 1;
+#define MOTOR_POWER 75;
+#define MOTOR_SLEEP 500L;
+
+/**
+ * Срабатывание при начальной минимальной позиции
+ */
+#define MINIMAL_DETECTED_RANGE 100;
+/**
+ * Срабатывание финиша при определённой делте
+ */
+#define MAXIMAL_DELTA 75;
+
 void main() {
-	
-	long sleepTimeMs = 250L;
+
+	tone(1000.0, 0.5);
+
+    int portCenter 		= 4;
+    int rangeCenter 	= 0;
     
-    int portCenter = 4;
-    int rangeCenter = 0;
+    // int toleranceNose 	= 10;
+
+    int lastRangeCenter = 0;
+
+    int step 			= 0;
+    int deltaRange 		= 0;
+
+    if (checkFirstPosition(sensorRange(portCenter))) {
+
+    	finish(rangeCenter, step);
+    	return;
+
+    }
 
     while(1) {
-        msleep(sleepTimeMs);
         
         rangeCenter = sensorRange(portCenter);
         
-        printf("R: %d | L: %d     C: %d\n", rangeRight, rangeLeft, rangeCenter);
+        moveOneStep();
+        
+        lastRangeCenter = sensorRange(portCenter);
+        deltaRange = rangeCenter - lastRangeCenter;
+
+        if (deltaIsCritical(deltaRange)) {
+
+        	finish(rangeCenter, step);
+        	break;
+
+        }
+    
     }
+
+}
+
+/**
+ * Проверяет начальную позицию стены
+ * @param sensorRange [description]
+ */
+int checkFirstPosition(int sensorRange) {
+
+	return sensorRange > MINIMAL_DETECTED_RANGE;
+
+}
+
+int deltaIsCritical(int delta) {
+
+	return (delta * (-1)) > MAXIMAL_DELTA);
+
+}
+
+void moveOneStep() {
+	
+	motor(MOTOR_LEFT, MOTOR_POWER);
+	motor(MOTOR_RIGHT, MOTOR_POWER);
+
+	msleep(MOTOR_SLEEP);
+
+	motor(MOTOR_LEFT, 0);
+	motor(MOTOR_RIGHT, 0);
+}
+
+int sensorRange(int port) {
+    
+    return analog(port);
+
+}
+
+void finish(int range, int step) {
+
+	printf("Range: %d Step: %d\n", range, step);
+	tone(5000.0, 0.3);
+	tone(5000.0, 0.3);
+	tone(5000.0, 0.3);
+
+}
+
+/**
+ * Коректировка по шуму
+ * @return [description]
+ */
+int correctNoseFirst() {
+
+	int steps = 0;
+	//for (steps = )
+	
+	return 0;
+
 }
