@@ -1,0 +1,12 @@
+#define sensor analog(4)
+#define probes 5
+
+int sensorData[probes];
+
+void main()
+{
+	while(1)
+	{
+		printf(Pres
+		start_press()
+
