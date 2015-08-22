@@ -1,0 +1,51 @@
+void main()
+{
+	int max 			= (int)((pow(2.0, 16) / 2.0) - 1.0);
+	int min 			= -max;
+	int isLoopDown 		= 0;
+	int counter 		= 0;
+	long speedCounter 	= (long)0;
+
+	long finishTimer 	= (long)0;
+	long startTime 		= mseconds();
+
+	while(1)
+	{
+		counter = counter + 1;
+		/*if (isLoopDown) 
+		{
+			counter--;
+		}
+		else
+		{
+			counter++;
+		}*/
+
+		/*if (counter == min || counter == max)
+		{
+			isLoopDown = !isLoopDown;
+		}*/
+		
+		if (counter == 500)
+		{
+			finishTimer = mseconds();
+			speedCounter = finishTimer - startTime;
+			
+			printf("OPS: %f \n", (1.0 / ((float)(finishTimer - startTime) / 500)));
+		}
+	}
+}
+
+float pow(float number, int power)
+{
+	int n = 0;
+	float out = 1.;
+	
+	while (n < power) 
+	{
+		n++;
+		out *= number; 
+	}
+
+	return out;
+}
