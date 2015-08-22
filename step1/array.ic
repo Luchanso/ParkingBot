@@ -1,8 +1,31 @@
 #define sensorPort 4
 #define readSensor analog(sensorPort)
 #define probes 5
-#define MOTOR_LEFT 0
-#define MOTOR_RIGHT 1
+#define motor_left 0
+#define motor_right 1
+#define motor_max_power 75
+
+void beeper_alert(int beeps, float rate)
+{
+    int beeped = 0;
+    float pitch = 0.;
+    
+    beeper_on();
+    
+    while(beeps >= beeped)
+      {  
+    
+        for(pitch = 6500.; pitch > 100.; pitch = pitch - rate)
+          set_beeper_pitch(pitch);
+    
+        for(pitch = 100.; pitch < 6500.; pitch = pitch + rate)
+          set_beeper_pitch(pitch);
+        
+        beeped = beeped + 1;
+    }
+    
+    beeper_off();
+}
 
 void array_fillWithZeros(int array[])
 {
@@ -55,7 +78,7 @@ void printarr(int array[])
     
     for(i = 0; i < arrSize; i = i + 1)
       {
-        printf("%d,", array[i]);
+        printf("%d ", array[i]);
     }  
 }
 
@@ -71,10 +94,10 @@ void main()
     
     while(!stop_button())
       {
-        motor(MOTOR_LEFT,75);
-        motor(MOTOR_RIGHT,75);
+        motor(motor_left,motor_max_power);
+        motor(motor_right,motor_max_power);
         
-        array_pop(sensorData,analog(4));
+        array_pop(sensorData,readSensor);
         
         printarr(sensorData);
         
@@ -85,24 +108,19 @@ void main()
         if( array_isDescending(sensorData) )
           {
             printf("Wall is near!\n");
-            beeper_on();
             
-            off(MOTOR_LEFT);
-            off(MOTOR_RIGHT);
+            off(motor_right);
+            off(motor_left);
             
-            for(pitch = 6500.; pitch > 100.; pitch = pitch - 50.)
-              set_beeper_pitch(pitch);
-            
-            for(pitch = 100.; pitch < 6500.; pitch = pitch + 50.)
-              set_beeper_pitch(pitch);
+            beeper_alert(10,400.);
             
             start_press();
             
         }
     }
     
-    off(MOTOR_LEFT);
-    off(MOTOR_RIGHT);
+    off(motor_left);
+    off(motor_right);
     
 }
 
