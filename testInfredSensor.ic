@@ -1,0 +1,26 @@
+/**
+ *   
+ */
+void main()
+{
+    long sleepTimeMs = 250L;
+    int portRight = 6;
+    int portLeft = 5;
+    
+    int rangeRight = 0;
+    int rangeLeft = 0;
+    
+    while(1) {
+        msleep(sleepTimeMs);
+        
+        rangeRight = sensorRange(portRight);
+        rangeLeft = sensorRange(portLeft);
+        
+        printf("R: %d | L: %d\n", rangeRight, rangeLeft);
+    }
+}
+
+int sensorRange(int port)
+{
+    return analog(port);
+}
