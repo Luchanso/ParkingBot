@@ -4,19 +4,23 @@
 void main()
 {
     long sleepTimeMs = 250L;
+    
     int portRight = 6;
     int portLeft = 5;
+    int portCenter = 4;
     
     int rangeRight = 0;
     int rangeLeft = 0;
+    int rangeCenter = 0;
     
     while(1) {
         msleep(sleepTimeMs);
         
         rangeRight = sensorRange(portRight);
         rangeLeft = sensorRange(portLeft);
+        rangeCenter = sensorRange(portCenter);
         
-        printf("R: %d | L: %d\n", rangeRight, rangeLeft);
+        printf("R: %d | L: %d       C: %d\n", rangeRight, rangeLeft, rangeCenter);
     }
 }
 
