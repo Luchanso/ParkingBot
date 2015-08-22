@@ -1,113 +1,96 @@
+/**
+ * Author: Loutchansky Oleg
+ * Move step by step calculation
+ */
 
 
-
-
-#define MOTOR_LEFT 0;
-#define MOTOR_RIGHT 1;
-#define MOTOR_POWER 75;
-#define MOTOR_SLEEP 500L;
+#define MOTOR_LEFT 0
+#define MOTOR_RIGHT 1
+#define MOTOR_POWER 75
+#define MOTOR_TIME_WORK 25L
 
 /**
- * Срабатывание при начальной минимальной позиции
+ * First critical range
  */
-#define MINIMAL_DETECTED_RANGE 100;
+#define MINIMAL_DETECTED_RANGE 50
 /**
- * Срабатывание финиша при определённой делте
+ * Maximal critical delta range
  */
-#define MAXIMAL_DELTA 75;
+#define MAXIMAL_DETECTED_RANGE 130
 
-void main() {
-
-	tone(1000.0, 0.5);
-
-    int portCenter 		= 4;
-    int rangeCenter 	= 0;
+void delta_move() {
     
-    // int toleranceNose 	= 10;
-
+    int portCenter = 4;
+    int rangeCenter  = sensorRange(portCenter);
+    
     int lastRangeCenter = 0;
-
-    int step 			= 0;
-    int deltaRange 		= 0;
-
-    if (checkFirstPosition(sensorRange(portCenter))) {
-
-    	finish(rangeCenter, step);
-    	return;
-
+    
+    int step      = 0;
+    int deltaRange   = 0;
+    
+    if (checkFirstPosition(rangeCenter)) {
+        
+        finish(rangeCenter, step);
+        return;
+        
     }
-
+    
     while(1) {
         
+        moveOneStep();
+        step++;
+
         rangeCenter = sensorRange(portCenter);
         
-        moveOneStep();
-        
-        lastRangeCenter = sensorRange(portCenter);
-        deltaRange = rangeCenter - lastRangeCenter;
-
-        if (deltaIsCritical(deltaRange)) {
-
-        	finish(rangeCenter, step);
-        	break;
-
+        if (rangeIsCritical(rangeCenter)) {
+            
+            finish(rangeCenter, step);
+            break;
+            
         }
-    
+        
     }
-
+    
 }
 
 /**
- * Проверяет начальную позицию стены
+ * Checking first position 
  * @param sensorRange [description]
  */
 int checkFirstPosition(int sensorRange) {
-
-	return sensorRange > MINIMAL_DETECTED_RANGE;
-
+    
+    return sensorRange > MINIMAL_DETECTED_RANGE;
+    
 }
 
-int deltaIsCritical(int delta) {
-
-	return (delta * (-1)) > MAXIMAL_DELTA);
-
+int rangeIsCritical(int range) {
+    
+    return range > MAXIMAL_DETECTED_RANGE;
+    
 }
 
 void moveOneStep() {
-	
-	motor(MOTOR_LEFT, MOTOR_POWER);
-	motor(MOTOR_RIGHT, MOTOR_POWER);
-
-	msleep(MOTOR_SLEEP);
-
-	motor(MOTOR_LEFT, 0);
-	motor(MOTOR_RIGHT, 0);
+    
+    motor(MOTOR_LEFT, MOTOR_POWER);
+    motor(MOTOR_RIGHT, MOTOR_POWER);
+    
+    msleep(MOTOR_TIME_WORK);
+    
+    motor(MOTOR_LEFT, 0);
+    motor(MOTOR_RIGHT, 0);
 }
 
 int sensorRange(int port) {
     
     return analog(port);
-
+    
 }
 
 void finish(int range, int step) {
-
-	printf("Range: %d Step: %d\n", range, step);
-	tone(5000.0, 0.3);
-	tone(5000.0, 0.3);
-	tone(5000.0, 0.3);
-
-}
-
-/**
- * Коректировка по шуму
- * @return [description]
- */
-int correctNoseFirst() {
-
-	int steps = 0;
-	//for (steps = )
-	
-	return 0;
-
+    
+    printf("Range: %d Step: %d\n", range, step);
+    tone(5000.0, 0.3);
+    tone(5000.0, 0.3);
+    tone(5000.0, 0.3);
+    
 }
