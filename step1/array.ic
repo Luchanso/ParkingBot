@@ -1,37 +1,33 @@
-#define sensor_port 4//port where is sensor attached
-#define read_sensor analog(sensor_port)
-#define probes 5//how much measurements robot will keep
-#define motor_left 0//motor output where is left motor attached
-#define motor_right 1//same for right motor
-#define motor_max_power 60//says for itself
-#define sleep_time 25L//how many milliseconds we will sleep between cycles
-#define trigger_level 610//if summ of last /probes/ measurements is larger than this, we are near wall
+#define SENSOR_PORT 4						// port where is sensor attached
+#define SENSOR_READ analog(SENSOR_PORT)
+#define PROBES 5							// how much measurements robot will keep
+#define MOTOR_LEFT 0						// motor output where is left motor attached
+#define MOTOR_RIGHT 1						// same for right motor
+#define MOTOR_MAX_POWER 60					// says for itself
+#define SLEEP_TIME 25L						// how many milliseconds we will sleep between cycles
+#define TRIGGER_LEVEL 610					// if summ of last /PROBES/ measurements is larger than this, we are near wall
 
 int array_summ(int array[])
-{
-    //summs all values in array
-    //for example
-    
-    //int arr[3] = {1,2,3};
-    //int s = array_summ(arr);
-    //s is now equals to 6
-    
+{   
     int i = 0;
     int arrMaxIdx = _array_size(array) - 1;
     int summ = 0;
     
     for(i = 0; i <= arrMaxIdx; i = i + 1)
-      {
+    {
         summ = summ + array[i];
     }
     
     return summ;
 } 
 
+/**
+ * plays weeoow sound /beeps/ times with choosen speed. NOTICE: will not execute any commands while running this command
+ * @param beeps [description]
+ * @param speed [description]
+ */
 void beeper_alert(int beeps, float speed)
 {
-    //plays weeoow sound /beeps/ times with choosen speed
-    //NOTICE: will not execute any commands while running this command
     int beeped = 0;
     float pitch = 0.;
     
@@ -52,33 +48,28 @@ void beeper_alert(int beeps, float speed)
     beeper_off();
 }
 
+/**
+ * fills array with zeros. Used to initialize array with random size
+ * @param array [description]
+ */
 void array_fillWithZeros(int array[])
-{
-    //fills array with zeros
-    //used to initialize array with random size
-    
+{    
     int i = 0;
     int arrMaxIdx = _array_size(array) - 1;
     
     for(i = 0; i <= arrMaxIdx; i = i + 1)
-      {
-        array[i]=0;
+    {
+        array[i] = 0;
     }
 }
 
+/**
+ * Return 1 if all values in array is strictly descending from first to last
+ * @param  array [description]
+ * @return       [description]
+ */
 int array_isDescending(int array[])
-{
-    //return 1 if all values in array is strictly descending from first to last, for example 
-    //int arr1[3] = {1,2,3};
-    //int arr2[3] = {3,2,1};
-    //int arr3[3] = {3,3,2};
-    //int arr4[3] = {100,2,1};
-    
-    //array_isDescending(arr1); will return 0
-    //array_isDescending(arr2); will return 1
-    //array_isDescending(arr3); will return 0
-    //array_isDescending(arr4); will return 1
-    
+{    
     int i = 0;
     int comparisonChain = 0;
     int arrMaxIdx = _array_size(array) - 1;
@@ -97,18 +88,15 @@ int array_isDescending(int array[])
       return 0;
 }
 
-
-void array_insertFirst(int array[], int value)
-{
-    //will put value at first array cell( 0 )
-    //and move all other cells down
-    //previous data in last cell will be lost
-    //for example
-    
-    //int arr[3] = {1,2,3}
-    //array_insertFirst(arr,0);
-    //values in array arr now are {0,1,2}
-    
+/**
+ * will put value at first array cell( 0 )
+ * and move all other cells down
+ * previous data in last cell will be lost
+ * @param array [description]
+ * @param value [description]
+ */
+void array_pop(int array[], int value)
+{    
     int arrMaxIdx = _array_size(array) - 1;
     int i = 0;
     
@@ -119,62 +107,82 @@ void array_insertFirst(int array[], int value)
     array[0] = value;
 }
 
+/**
+ * Print all values from array on LCD separated by spaces
+ * Not terminating screen buffer by \n as we probably need to print values inside some labels
+ * @param array [description]
+ */
 void array_print(int array[])
-{
-    //print all values from array on LCD separated by spaces
-    
+{    
     int arrSize = _array_size(array);
     int i = 0;
     
     for(i = 0; i < arrSize; i = i + 1)
-      {
+    {
         printf("%d ", array[i]);
     }
-    //not terminating screen buffer by \n as we probably need to print values inside some labels
 }
 
-int sensor_data[probes];//declare array
+int sensor_data[PROBES];
 
 void main()
-{     
-    array_fillWithZeros(sensor_data);//initialize array
+{
+    array_fillWithZeros(sensor_data);
     
-    printf("Press start     button to begin\n");//spaces to wrap text on dislay
-    start_press();//wait for start button to be pressed
+    printf("Press start     button to begin\n");
+    start_press();
     printf("Running...\n");
     
-    while(!stop_button())//stop cycle if stop button is pressed
-      {
-        motor(motor_left,motor_max_power);
-        motor(motor_right,motor_max_power);
-        //spin left and right motors forward
+    while(!stop_button())
+    {
+      	// spin left and right motors forward
+        motor(MOTOR_LEFT, MOTOR_MAX_POWER);
+        motor(MOTOR_RIGHT, MOTOR_MAX_POWER);        
         
-        array_insertFirst(sensor_data,read_sensor);//take measurement and put it into array
+        array_pop(sensor_data, SENSOR_READ);
         
-        //array_print(sensorData);//for debugging
-        //printf("\n");//terminate it here as we do not need anything else, look to line 101
+#ifdef DEBUG
         
-        if( array_summ(sensor_data) > trigger_level )//if summ of last 5 measurements larger that triggerlevel
-          {            
-            off(motor_right);
-            off(motor_left);//stop all motors
-            
-            beeper_alert(6,400.);//sing a song
-            
-            while(!start_button())//wait for start button to continue moving
-              {
-                printf("Wall is near!   Distance:%d\n",read_sensor);//print current distace to obstacle
-                msleep(60L);//60ms - will give us 16 fps;
-            }
-            printf("Running...\n");
+        array_print(sensor_data);
+        printf("\n");
+
+#endif
+        
+        if( wallIsNear(sensor_data) )
+        {
+            waitForAction();
         }
         
-        msleep(sleep_time);//idle between cycles
+        msleep(SLEEP_TIME);
         
     }
     
-    off(motor_left);
-    off(motor_right);//turn off all motors once we stop cycle
+    motors_stop();
     
 }
-//that's all
+
+int wallIsNear(int sensor_data[]) 
+{
+	return array_summ(sensor_data) > TRIGGER_LEVEL;
+}
+
+void motors_stop() 
+{
+	off(MOTOR_LEFT);
+    off(MOTOR_RIGHT);
+}
+
+void waitForAction() 
+{
+	motors_stop();
+        
+    beeper_alert(6,400.);
+    
+    while(!start_button())
+    {
+        printf("Wall is near!   Distance:%d\n", SENSOR_READ);
+        // 60ms - will give us 16 fps;
+        msleep(60L);
+    }
+    printf("Running...\n");
+}
