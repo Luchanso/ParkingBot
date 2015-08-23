@@ -1,13 +1,26 @@
-#define SENSOR_PORT 4						// port where is sensor attached
-#define SENSOR_READ analog(SENSOR_PORT)
-#define PROBES 5							// how much measurements robot will keep
-#define MOTOR_LEFT 0						// motor output where is left motor attached
-#define MOTOR_RIGHT 1						// same for right motor
-#define MOTOR_MAX_POWER 60					// says for itself
-#define SLEEP_TIME 25L						// how many milliseconds we will sleep between cycles
-#define TRIGGER_LEVEL 610					// if summ of last /PROBES/ measurements is larger than this, we are near wall
+/**
+ * sums all cells in array
+ * @param array[target array of ints]
+ * @param from[first cell to count]
+ * @param to[last cell to count]
+ */
+int array_summFromTo(int array[],int from, int to)
+{   
+    int i = 0;
+    int summ = 0;
+    
+    for(i = from; i < to; i = i + 1)
+    {
+        summ = summ + array[i];
+    }  
+	return summ;
+} 
 
-int array_summ(int array[])
+/**
+ * sums 
+ * @param array[target array of ints]
+ */
+int array_summAll(int array[])
 {   
     int i = 0;
     int arrMaxIdx = _array_size(array) - 1;
@@ -22,35 +35,8 @@ int array_summ(int array[])
 } 
 
 /**
- * plays weeoow sound /beeps/ times with choosen speed. NOTICE: will not execute any commands while running this command
- * @param beeps [description]
- * @param speed [description]
- */
-void beeper_alert(int beeps, float speed)
-{
-    int beeped = 0;
-    float pitch = 0.;
-    
-    beeper_on();
-    
-    while(beeps >= beeped)
-      {  
-        
-        for(pitch = 6500.; pitch > 100.; pitch = pitch - speed)
-          set_beeper_pitch(pitch);
-        
-        for(pitch = 100.; pitch < 6500.; pitch = pitch + speed)
-          set_beeper_pitch(pitch);
-        
-        beeped = beeped + 1;
-    }
-    
-    beeper_off();
-}
-
-/**
  * fills array with zeros. Used to initialize array with random size
- * @param array [description]
+ * @param array [target array of ints]
  */
 void array_fillWithZeros(int array[])
 {    
@@ -123,66 +109,25 @@ void array_print(int array[])
     }
 }
 
-int sensor_data[PROBES];
+/**
+ * Calculate average value between /from/ and /to/ cells
+ * @param array [target array of ints]
+ * @param from [first cell to add]
+ * @param to [last cell to add]
+ */
 
-void main()
+
+//TODO: make this functions to float
+int array_averageFromTo(int arr[], int from, int to)
 {
-    array_fillWithZeros(sensor_data);
-    
-    printf("Press start     button to begin\n");
-    start_press();
-    printf("Running...\n");
-    
-    while(!stop_button())
-    {
-      	// spin left and right motors forward
-        motor(MOTOR_LEFT, MOTOR_MAX_POWER);
-        motor(MOTOR_RIGHT, MOTOR_MAX_POWER);        
-        
-        array_pop(sensor_data, SENSOR_READ);
-        
-#ifdef DEBUG
-        
-        array_print(sensor_data);
-        printf("\n");
-
-#endif
-        
-        if( wallIsNear(sensor_data) )
-        {
-            waitForAction();
-        }
-        
-        msleep(SLEEP_TIME);
-        
-    }
-    
-    motors_stop();
-    
+    return( array_summFromTo(arr,from,to) / (to - from) );
 }
 
-int wallIsNear(int sensor_data[]) 
-{
-	return array_summ(sensor_data) > TRIGGER_LEVEL;
-}
-
-void motors_stop() 
-{
-	off(MOTOR_LEFT);
-    off(MOTOR_RIGHT);
-}
-
-void waitForAction() 
-{
-	motors_stop();
-        
-    beeper_alert(6,400.);
-    
-    while(!start_button())
-    {
-        printf("Wall is near!   Distance:%d\n", SENSOR_READ);
-        // 60ms - will give us 16 fps;
-        msleep(60L);
-    }
-    printf("Running...\n");
+/**
+ * Calculate average value of all array cells
+ * @param array [target array of ints]
+ */
+int array_averageAll(int arr[])
+{    
+    return( array_summAll(arr) / (_array_size(arr) ) );
 }

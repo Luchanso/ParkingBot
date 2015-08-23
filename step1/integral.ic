@@ -1,0 +1,101 @@
+#include array.ic
+
+#define SENSOR_PORT 4						// port where is sensor attached
+#define SENSOR_READ analog(SENSOR_PORT)
+#define PROBES 5							// how much measurements robot will keep
+#define MOTOR_LEFT 0						// motor output where is left motor attached
+#define MOTOR_RIGHT 1						// same for right motor
+#define MOTOR_MAX_POWER 60					// says for itself
+#define SLEEP_TIME 25L						// how many milliseconds we will sleep between cycles
+#define TRIGGER_LEVEL 610					// if summ of last /PROBES/ measurements is larger than this, we are near wall
+
+/**
+ * plays weeoow sound /beeps/ times with choosen speed. NOTICE: will not execute any commands while running this command
+ * @param beeps [description]
+ * @param speed [description]
+ */
+void beeper_alert(int beeps, float speed)
+{
+    int beeped = 0;
+    float pitch = 0.;
+    
+    beeper_on();
+    
+    while(beeps >= beeped)
+      {  
+        
+        for(pitch = 6500.; pitch > 100.; pitch = pitch - speed)
+          set_beeper_pitch(pitch);
+        
+        for(pitch = 100.; pitch < 6500.; pitch = pitch + speed)
+          set_beeper_pitch(pitch);
+        
+        beeped = beeped + 1;
+    }
+    
+    beeper_off();
+}
+
+int sensor_data[PROBES];
+
+void main()
+{
+    array_fillWithZeros(sensor_data);
+    
+    printf("Press start     button to begin\n");
+    start_press();
+    printf("Running...\n");
+    
+    while(!stop_button())
+    {
+      	// spin left and right motors forward
+        motor(MOTOR_LEFT, MOTOR_MAX_POWER);
+        motor(MOTOR_RIGHT, MOTOR_MAX_POWER);        
+        
+        array_pop(sensor_data, SENSOR_READ);
+        
+#ifdef DEBUG
+        
+        array_print(sensor_data);
+        printf("\n");
+
+#endif
+        
+        if( wallIsNear(sensor_data) )
+        {
+            waitForAction();
+        }
+        
+        msleep(SLEEP_TIME);
+        
+    }
+    
+    motors_stop();
+    
+}
+
+int wallIsNear(int sensor_data[]) 
+{
+	return array_summ(sensor_data) > TRIGGER_LEVEL;
+}
+
+void motors_stop() 
+{
+	off(MOTOR_LEFT);
+    off(MOTOR_RIGHT);
+}
+
+void waitForAction() 
+{
+	motors_stop();
+        
+    beeper_alert(6,400.);
+    
+    while(!start_button())
+    {
+        printf("Wall is near!   Distance:%d\n", SENSOR_READ);
+        // 60ms - will give us 16 fps;
+        msleep(60L);
+    }
+    printf("Running...\n");
+}

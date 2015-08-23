@@ -1,0 +1,36 @@
+#include array.ic
+
+int arr[5] = {1,2,3,4,5};
+
+void main()
+{
+    array_print(arr);
+    printf("Avg:%d AvgFT:%d\n",array_averageAll(arr),array_averageFromTo(arr,2,5));
+    start_press();
+    
+    array_print(arr);
+    printf("Summ:%d SummFT:%d\n",array_summAll(arr),array_summFromTo(arr,2,5));
+    start_press();
+    
+    array_print(arr);
+    printf("D:%d\n",array_isDescending(arr));
+    start_press();
+    
+    arr[0] = 5;
+    arr[1] = 4;
+    arr[2] = 3;
+    arr[3] = 2;
+    arr[4] = 1;
+    
+    array_print(arr);
+    printf("D:%d\n",array_isDescending(arr));
+    start_press();
+    
+    array_pop(arr,6);
+    array_print(arr);
+    start_press();
+    
+    array_fillWithZeros(arr);
+    array_print(arr);
+    start_press();
+}
